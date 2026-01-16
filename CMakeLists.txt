@@ -44,6 +44,7 @@ else()
             snakecutting.h snakecutting.cpp
             Key.h
             mill.h
+            coordSystem.h
         )
     endif()
 endif()

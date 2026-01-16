@@ -4,9 +4,9 @@ class Key
 {
 public:
     // Ширина ключа
-    double  Wkey = 10;
+    double  W = 10;
     // Толщина ключа
-    double  Hkey = 3;
+    double  H = 3;
     // Длина ключа
-    double  Lkey = 40;
+    double  L = 40;
 };
