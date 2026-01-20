@@ -41,8 +41,5 @@ private:
         double  D;
     };
 
-    QVector<snakeCut>  cuts(3); // 3 элемента, будут default-сконструированы
-    cuts[0] = {10, 20};
-    cuts[1] = {30, 40};
-    cuts[2] = {50, 60};
+    QVector<snakeCut>  cuts;
 };

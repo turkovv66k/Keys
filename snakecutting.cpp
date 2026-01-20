@@ -22,21 +22,35 @@ void snakeCutting::cutting(Mill mill, Key key)
     snakeCutting::moveTo(cordS.X0 + cuts.last().L + mill.D / 2,
                          cordS.Y0 + key.L + 2 * mill.D,
                          cordS.Z0 + key.H + 2);
-    // опускаемся по z на высоту ключа - 1ый проход
-    snakeCutting::moveTo(cordS.X0 + cuts.last().L + mill.D / 2,
-                         cordS.Y0 + key.L + 2 * mill.D,
-                         cordS.Z0 + key.H - deltaD);    // минус 0.2 мм
 
     // 1 проход если ширина змейки от 1 до 2 диаметров фрезы
     if ((mill.D <= Hzm) && (Hzm <= 2 * mill.D))
     {
-        for (int i = Zdept / mill.h; i > 0; i--)
-        {   // сделать доп цикл по элементам массива cut[i]
-            // по Х тоже самое
+        for (int i = Zdept / mill.DeltaH; i > 0; i--)
+        {
+            // опускаемся по z на высоту ключа - iый проход
             snakeCutting::moveTo(cordS.X0 + cuts.last().L + mill.D / 2,
-                                                                          cordS.Y0 + cuts.last().B - cuts.last().D / 2
-                                                                          - deltaD,
-                                                                          cordS.Z0 + key.H - deltaD);
+                                 cordS.Y0 + key.L + 2 * mill.D,
+                                 cordS.Z0 + key.H - mill.DeltaH);   // минус 0.2 мм
+
+            for (int j = cuts.length(); j > 0; j--)
+            {
+                if (j > 1)
+                {
+                    // по Х тоже самое
+                    snakeCutting::moveTo(cordS.X0 + cuts[j].L + mill.D / 2,
+                                     cordS.Y0 + (key.L - cuts[j].B) - cuts[j].D / 2 - deltaD,
+                                     cordS.Z0 + key.H - mill.DeltaH);
+                }
+
+                // если вырез последний режем доп площадку равную D фрезы запасом
+                if (j == 1)
+                {
+                    snakeCutting::moveTo(cordS.X0 + cuts[j].L + mill.D / 2,
+                                         cordS.Y0 + (key.L - cuts[j].B) - cuts[j].D / 2 - mill.D,
+                                         cordS.Z0 + key.H - mill.DeltaH);
+                }
+            }
         }
     }
     else
