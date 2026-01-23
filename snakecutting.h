@@ -11,7 +11,8 @@ public:
     snakeCutting();
 
 
-    void cutting(Mill, Key);
+    void cutting(Mill, Key, bool);
+    void cutsFilling();
     void moveTo(double X, double Y, double Z);
 
 private:

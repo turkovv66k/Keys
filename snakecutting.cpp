@@ -1,4 +1,5 @@
 #include "snakecutting.h"
+#include <algorithm>
 #include <QDebug>
 
 snakeCutting::snakeCutting()
@@ -12,12 +13,21 @@ void snakeCutting::moveTo(double X, double Y, double Z)
     qDebug() << "----------------------";
 }
 
-void snakeCutting::cutting(Mill mill, Key key)
-{
-    // наполняем массив вырезами
+void snakeCutting::cutsFilling()
+{   // наполняем массив вырезами
     cuts.append({15, 3, 2});
     cuts.append({25, 4, 3});
     cuts.append({35, 5, 2});
+}
+
+void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport = false)
+{
+    cutsFilling();
+    if (true)
+    {
+        key.L = 0;
+        std::reverse(cuts.begin(), cuts.end());
+    }
 
     // подъезжаем к ключу (пока хз с + и -)
     snakeCutting::moveTo(cordS.X0 + cuts.last().L + mill.D / 2,
@@ -58,15 +68,21 @@ void snakeCutting::cutting(Mill mill, Key key)
             }
 
             // поднимаемся на безапосную высоту двигаемся только по Z вверх
-            // snakeCutting::moveTo( , , );
+            snakeCutting::moveTo(cordS.X0 + cuts.first().L + mill.D / 2,
+                                 cordS.Y0 + key.L - ((key.L - cuts.first().B) - cuts.first().D / 2 - mill.D),
+                                 cordS.Z0 + key.H + 2);
+            // едем в начало ключа
+            snakeCutting::moveTo(cordS.X0 + cuts.last().L + mill.D / 2,
+                                 cordS.Y0 + key.L + 2 * mill.D,
+                                 cordS.Z0 + key.H + 2);
         }
     }
     else
     {   // несколько проходов если толщина больше двух диаметров фрезы и меньше ширины ключа - 2 мм (2 мм условно)
         if ((Hzm >= 2 * mill.D) && (Hzm < key.W - 2))
         {
-            for ()
-            {}
+            // for ()
+            // {}
         }
     }
 }

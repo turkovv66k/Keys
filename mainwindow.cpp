@@ -12,5 +12,5 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-    SC->cutting(*M, *K);
+    SC->cutting(*M, *K, false);
 }
