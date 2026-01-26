@@ -45,6 +45,7 @@ else()
             Key.h
             mill.h
             coordSystem.h
+            pathviewer.h pathviewer.cpp
         )
     endif()
 endif()

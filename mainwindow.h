@@ -1,20 +1,24 @@
 #pragma once
 
-#include "Key.h"
-#include "mill.h"
-#include "snakecutting.h"
 #include <QMainWindow>
+
+class Key;
+class Mill;
+class snakeCutting;
+class PathViewer;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget* parent = nullptr);
+    explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
 private:
-    Key*          K = nullptr;
-    Mill*         M = nullptr;
-    snakeCutting* SC = nullptr;
+    Key*          K;
+    Mill*         M;
+    snakeCutting* SC;
+
+    PathViewer*   viewer;
 };

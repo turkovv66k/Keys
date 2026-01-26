@@ -5,18 +5,24 @@
 #include "mill.h"
 #include "QVector"
 
+class PathViewer;
+
 class snakeCutting
 {
 public:
     snakeCutting();
 
 
-    void cutting(Mill, Key, bool);
-    void cutsFilling();
-    void moveTo(double X, double Y, double Z);
+    // отрисовка
+    static void setViewer(PathViewer* viewer);
+
+    void        cutting(Mill, Key, bool, bool);
+    void        cutsFilling();
+    void        moveTo(double X, double Y, double Z);
 
 private:
-
+    // отрисовка
+    static PathViewer* pathViewer;
 
     // доп ширина площадки
     double             deltaD = 0.2;
