@@ -5,7 +5,7 @@
 #include "PathViewer.h"
 #include "snakeCutting.h"
 
-#include <QPushButton>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -21,17 +21,19 @@ MainWindow::MainWindow(QWidget* parent)
     snakeCutting::setViewer(viewer);
 
 
-    SC->cutting(*M, *K, true, true);
+    QTimer::singleShot(0,
+                          this,
+                          [this](){
+                              SC->cutting(*M, *K, true, true);      // 1 true если упор в торец
+                          });                               // 2 true если у ключа база слева
+
+
+
 
     QWidget*     central = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(central);
 
-    QPushButton* button = new QPushButton;
-
-    button->setText("hello");
-
     layout->addWidget(viewer);
-    layout->addWidget(button);
     layout->setContentsMargins(0, 0, 0, 0);
 
     setCentralWidget(central);

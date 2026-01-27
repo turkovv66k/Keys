@@ -11,6 +11,7 @@ PathViewer* snakeCutting::pathViewer = nullptr;
 
 void snakeCutting::moveTo(double X, double Y, double Z)
 {
+    qDebug() << "moveTo:" << X << Y << Z;
     if (pathViewer)
     {
         pathViewer->addPoint(X, Y, Z);
@@ -22,16 +23,27 @@ void snakeCutting::setViewer(PathViewer* viewer)
     pathViewer = viewer;
 }
 
-void snakeCutting::cutsFilling()
+void snakeCutting::cutsFilling1()
 {   // наполняем массив вырезами
-    cuts.append({15, 3, 2});
-    cuts.append({25, 4, 3});
-    cuts.append({35, 5, 2});
+    cuts.clear();
+    cuts.append({6.85, 4, 0.2});
+    cuts.append({10.75, 4, 0.2});
+    cuts.append({14.65, 6, 0.2});
+    cuts.append({18.55, 7, 0.2});
+    cuts.append({22.45, 8, 0.2});
 }
 
-void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport = true, bool isRightSide = true)
+void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSide)
 {
-    cutsFilling();
+    if (isLeftSide)
+    {
+        cutsFilling1();
+    }
+    else
+    {
+        cutsFilling1();
+    }
+
     // коэффициент расчёта X координаты если от левой стороны то 1 если от правой то -1
     int k = 1;
 
@@ -44,13 +56,13 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport = true, bool i
         int j = cuts.size() - 1;
         while (i < j)
         {
-            std::swap(cuts[i].L, cuts[j].L);
+            std::swap(cuts[i], cuts[j]);
             ++i;
             --j;
         }
     }
 
-    if (isRightSide)
+    if (!isLeftSide)
     {
         k = -1;
     }
@@ -79,28 +91,41 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport = true, bool i
                 if (j > 0)
                 {
                     // по Х тоже самое
-                    snakeCutting::moveTo(cordS.X0 + k * (cuts[j].L + mill.D / 2),
-                                     cordS.Y0 + key.L - ((key.L - cuts[j].B) - cuts[j].D / 2 - deltaD),
+                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cuts.size() - j - 1].L + mill.D / 2),
+                                         cordS.Y0 + key.L
+                                         - ((key.L - cuts[cuts.size() - j - 1].B)
+                                             + (cuts[cuts.size() - j - 1].D + deltaD)),
+                                         cordS.Z0 + key.H - mill.DeltaH * ((Zdept / mill.DeltaH) - i));
+                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cuts.size() - j - 1].L + mill.D / 2),
+                                     cordS.Y0 + key.L
+                                     - ((key.L - cuts[cuts.size() - j - 1].B) - (cuts[cuts.size() - j - 1].D + deltaD)),
                                      cordS.Z0 + key.H - mill.DeltaH * ((Zdept / mill.DeltaH) - i));
                 }
 
                 // если вырез последний режем доп площадку равную D фрезы запасом
                 if (j == 0)
                 {
-                    snakeCutting::moveTo(cordS.X0 + k * (cuts[j].L + mill.D / 2),
-                                         cordS.Y0 + key.L - ((key.L - cuts[j].B) - cuts[j].D / 2 - mill.D),
+                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cuts.size() - j - 1].L + mill.D / 2),
+                                         cordS.Y0 + key.L
+                                         - ((key.L - cuts[cuts.size() - j - 1].B)
+                                             + (cuts[cuts.size() - j - 1].D + deltaD)),
+                                         cordS.Z0 + key.H - mill.DeltaH * ((Zdept / mill.DeltaH) - i));
+                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cuts.size() - j - 1].L + mill.D / 2),
+                                         cordS.Y0 + key.L
+                                         - ((key.L - cuts[cuts.size() - j - 1].B)
+                                             - (cuts[cuts.size() - j - 1].D + deltaD)),
                                          cordS.Z0 + key.H - mill.DeltaH * ((Zdept / mill.DeltaH) - i));
                 }
             }
 
-            // поднимаемся на безапосную высоту двигаемся только по Z вверх
-            snakeCutting::moveTo(cordS.X0 + k * (cuts.first().L + mill.D / 2),
-                                 cordS.Y0 + key.L - ((key.L - cuts.first().B) - cuts.first().D / 2 - mill.D),
-                                 cordS.Z0 + key.H + 2);
-            // едем в начало ключа
-            snakeCutting::moveTo(cordS.X0 + k * (cuts.last().L + mill.D / 2),
-                                 cordS.Y0 + key.L + 2 * mill.D,
-                                 cordS.Z0 + key.H + 2);
+            //// поднимаемся на безапосную высоту двигаемся только по Z вверх
+            // snakeCutting::moveTo(cordS.X0 + k * (cuts.last().L + mill.D / 2),
+            // cordS.Y0 + key.L - ((key.L - cuts.last().B) - cuts.last().D / 2 - mill.D),
+            // cordS.Z0 + key.H + 2);
+            //// едем в начало ключа
+            // snakeCutting::moveTo(cordS.X0 + k * (cuts.last().L + mill.D / 2),
+            // cordS.Y0 + key.L + 2 * mill.D,
+            // cordS.Z0 + key.H + 2);
         }
     }
     else

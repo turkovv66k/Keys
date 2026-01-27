@@ -17,7 +17,8 @@ public:
     static void setViewer(PathViewer* viewer);
 
     void        cutting(Mill, Key, bool, bool);
-    void        cutsFilling();
+    void        cutsFilling1();
+    void        cutsFilling2();
     void        moveTo(double X, double Y, double Z);
 
 private:
