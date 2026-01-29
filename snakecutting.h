@@ -32,7 +32,7 @@ private:
     // Угол заходной фаски
     int                bevelAngle = 30;
     // Глубина змейки считается от базы ( толщина ключа - толщина змейки )
-    double             Zdept = 1;
+    double             Zdept = 0.65;
 
     Mill               mill;
     Key                key;
