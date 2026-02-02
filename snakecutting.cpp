@@ -76,11 +76,13 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSi
     // ищим крайний вырез в массиве
     double maxB = cuts.first().B;
     double maxL = cuts.first().L;
-
+    // счетчик крайнего выреза
+    int    maxI = 0;
     for (const auto& cut : qAsConst(cuts))
     {
         if (cut.B > maxB)
         {
+            maxI++;
             maxB = cut.B;
             maxL = cut.L;
         }
