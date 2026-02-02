@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget* parent)
     QTimer::singleShot(0,
                           this,
                           [this](){
-                              SC->cutting(*M, *K, true, true);      // 1 true если упор в торец
+                              SC->cutting(*M, *K, true, true);          // false       // 1 true если упор в торец
                           });                               // 2 true если у ключа база слева
 
 

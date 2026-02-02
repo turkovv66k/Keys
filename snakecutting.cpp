@@ -1,8 +1,8 @@
 #include "PathViewer.h"
 #include "snakecutting.h"
 #include <algorithm>
-#include <QDebug>
 #include <math.h>
+#include <QDebug>
 
 snakeCutting::snakeCutting()
 {}
@@ -31,7 +31,7 @@ void snakeCutting::cutsFilling1()
     cuts.append({10.75, 5, 1});
     cuts.append({14.65, 6, 1});
     cuts.append({18.55, 7, 1});
-    cuts.append({22.45, 8, 1});
+    cuts.append({22.45, 5.4, 1});
 }
 
 void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSide)
@@ -49,7 +49,7 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSi
     int k = 1;
     // коэффициент расчёта Y координаты если упор в базу  то 1 если в торец то -1
     int n = 1;
-    if (!isBaseSupport)
+    if (isBaseSupport)
     {
         // заменяем L с кноца в начало если упор в торец и сбрасываем длину ключа key.L
 
@@ -73,12 +73,17 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSi
         key.L = 0;
     }
 
-    // ищим крайний вырез массива
+    // ищим крайний вырез в массиве
+    double maxB = cuts.first().B;
     double maxL = cuts.first().L;
 
     for (const auto& cut : qAsConst(cuts))
     {
-        maxL = qMax(maxL, cut.L);
+        if (cut.B > maxB)
+        {
+            maxB = cut.B;
+            maxL = cut.L;
+        }
     }
 
     if (!isLeftSide)
@@ -95,13 +100,12 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSi
     // 1 проход если ширина змейки - 1 диаметр фрезы
     if (mill.D == Hzm)
     {
-
         for (int i = 1; i <= passes; i++)
         {
             // опускаемся по z на высоту ключа - iый проход
             snakeCutting::moveTo(cordS.X0 + k * (maxL + mill.D / 2),
                                  cordS.Y0 + key.L + 2 * mill.D,
-                                 cordS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept)); // минус 0.2 мм
+                                 cordS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));  // минус 0.2 мм
 
             // Z не меняется во всем цикле ток Х и У
             for (int j = cuts.length() - 1;
@@ -133,19 +137,20 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSi
 
                     snakeCutting::moveTo(cordS.X0 + k * (cuts[cuts.size() - j - 1].L + mill.D / 2),
                                          cordS.Y0 + key.L - ((key.L - cuts[cuts.size() - j - 1].B)
-                                             - n * (cuts[cuts.size() - j - 1].D / 2 + mill.D / 2)),
+                                             - n * (cuts[cuts.size() - j - 1].D / 2 + deltaD)),
                                          cordS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));
+                    // подем фрезы вверх для перехода на новый заход
+                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cuts.size() - j - 1].L + mill.D / 2),
+                                         cordS.Y0 + key.L - ((key.L - cuts[cuts.size() - j - 1].B)
+                                             - n * (cuts[cuts.size() - j - 1].D / 2 + deltaD)),
+                                         cordS.Z0 + key.H + 2);
                 }
             }
 
-            //// поднимаемся на безапосную высоту двигаемся только по Z вверх
-            // snakeCutting::moveTo(cordS.X0 + k * (cuts.last().L + mill.D / 2),
-            // cordS.Y0 + key.L - ((key.L - cuts.last().B) - cuts.last().D / 2 - mill.D),
-            // cordS.Z0 + key.H + 2);
-            //// едем в начало ключа
-            // snakeCutting::moveTo(cordS.X0 + k * (cuts.last().L + mill.D / 2),
-            // cordS.Y0 + key.L + 2 * mill.D,
-            // cordS.Z0 + key.H + 2);
+            // едем в начало ключа
+            snakeCutting::moveTo(cordS.X0 + k * (maxL + mill.D / 2),
+                                 cordS.Y0 + key.L + 2 * mill.D,
+                                 cordS.Z0 + key.H + 2);
 
             // TODO сделать в конце змейки зарез на mill.D /2
         }

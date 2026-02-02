@@ -6,7 +6,7 @@ public:
     // Диаметр фрезы
     double  D = 2;
     // Глубина одного прохода
-    double  DeltaH = 0.15;
+    double  DeltaH = 0.3;
     // Вылет фрезы
     double  H = 0;
 };
