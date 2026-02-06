@@ -6,6 +6,7 @@ class Key;
 class Mill;
 class snakeCutting;
 class PathViewer;
+class coordSystem;
 
 class MainWindow : public QMainWindow
 {
@@ -19,6 +20,8 @@ private:
     Key*          K;
     Mill*         M;
     snakeCutting* SC;
+    coordSystem*  CS1;
+    coordSystem*  CS2;
 
     PathViewer*   viewer;
 };

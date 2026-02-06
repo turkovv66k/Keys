@@ -7,7 +7,6 @@
 snakeCutting::snakeCutting()
 {}
 
-
 PathViewer* snakeCutting::pathViewer = nullptr;
 
 void snakeCutting::moveTo(double X, double Y, double Z)
@@ -24,26 +23,19 @@ void snakeCutting::setViewer(PathViewer* viewer)
     pathViewer = viewer;
 }
 
-void snakeCutting::cutsFilling1()
+void snakeCutting::cutsFilling()
 {   // наполняем массив вырезами
     cuts.clear();
-    cuts.append({6, 4, 1});
+    cuts.append({6, 7, 1});
     cuts.append({10, 5, 1});
     cuts.append({14, 6, 1});
     cuts.append({18, 7, 1});
     cuts.append({22, 5, 1});
 }
 
-void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSide)
+void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSide, coordSystem CS)
 {
-    if (isLeftSide)
-    {
-        cutsFilling1();
-    }
-    else
-    {
-        cutsFilling1();
-    }
+    cutsFilling();
 
     // коэффициент расчёта X координаты если от левой стороны то 1 если от правой то -1
     int k = 1;
@@ -96,9 +88,9 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSi
     }
 
     // подъезжаем к ключу (пока хз с + и -)
-    snakeCutting::moveTo(cordS.X0 + k * (maxL + mill.D / 2),
-                         cordS.Y0 + key.L + 2 * mill.D,
-                         cordS.Z0 + key.H + 2);
+    snakeCutting::moveTo(CS.X0 + k * (maxL + mill.D / 2),
+                         CS.Y0 + key.L + 2 * mill.D,
+                         CS.Z0 + key.H + 2);
 
     int passes = (int)ceil(Zdept / mill.DeltaH);
     // 1 проход если ширина змейки - 1 диаметр фрезы
@@ -107,9 +99,9 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSi
         for (int i = 1; i <= passes; i++)
         {
             // опускаемся по z на высоту ключа - iый проход
-            snakeCutting::moveTo(cordS.X0 + k * (maxL + mill.D / 2),
-                                 cordS.Y0 + key.L + 2 * mill.D,
-                                 cordS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));  // минус 0.2 мм
+            snakeCutting::moveTo(CS.X0 + k * (maxL + mill.D / 2),
+                                 CS.Y0 + key.L + 2 * mill.D,
+                                 CS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept)); // минус 0.2 мм
 
             // Z не меняется во всем цикле ток Х и У
             for (int j = cuts.length() - 1;
@@ -120,41 +112,42 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSi
                 {
                     // по Х тоже самое
 
-                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
-                                         cordS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
+                    snakeCutting::moveTo(CS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
+                                         CS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
                                              - (cuts[cutIndex(j)].D / 2 + deltaD)),
-                                         cordS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));
+                                         CS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));
 
-                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
-                                         cordS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
+                    snakeCutting::moveTo(CS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
+                                         CS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
                                              + (cuts[cutIndex(j)].D / 2 + deltaD)),
-                                         cordS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));
+                                         CS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));
                 }
 
                 // если вырез последний режем доп площадку равную D фрезы запасом
                 if (j == 0)
                 {
-                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
-                                         cordS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
+                    snakeCutting::moveTo(CS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
+                                         CS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
                                              - (cuts[cutIndex(j)].D / 2 + deltaD)),
-                                         cordS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));
+                                         CS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));
 
-                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
-                                         cordS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
+                    snakeCutting::moveTo(CS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
+                                         CS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
                                              + (cuts[cutIndex(j)].D / 2 + cuts[cutIndex(j)].D)),
-                                         cordS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));
+                                         CS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept));
+
                     // подем фрезы вверх для перехода на новый заход
-                    snakeCutting::moveTo(cordS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
-                                         cordS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
+                    snakeCutting::moveTo(CS.X0 + k * (cuts[cutIndex(j)].L + mill.D / 2),
+                                         CS.Y0 + key.L - ((key.L - cuts[cutIndex(j)].B)
                                              + (cuts[cutIndex(j)].D / 2 + cuts[cutIndex(j)].D)),
-                                         cordS.Z0 + key.H + 2);
+                                         CS.Z0 + key.H + 2);
                 }
             }
 
             // едем в начало ключа
-            snakeCutting::moveTo(cordS.X0 + k * (maxL + mill.D / 2),
-            cordS.Y0 + key.L + 2 * mill.D,
-            cordS.Z0 + key.H + 2);
+            snakeCutting::moveTo(CS.X0 + k * (maxL + mill.D / 2),
+            CS.Y0 + key.L + 2 * mill.D,
+            CS.Z0 + key.H + 2);
         }
     }
     else

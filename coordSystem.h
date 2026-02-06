@@ -3,7 +3,6 @@
 class coordSystem
 {
 public:
-
     double  X0;
     double  Y0;
     double  Z0;

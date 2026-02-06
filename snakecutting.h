@@ -16,9 +16,8 @@ public:
     // отрисовка
     static void setViewer(PathViewer* viewer);
 
-    void        cutting(Mill, Key, bool, bool);
-    void        cutsFilling1();
-    void        cutsFilling2();
+    void        cutting(Mill, Key, bool, bool, coordSystem);
+    void        cutsFilling();
     void        moveTo(double X, double Y, double Z);
 
 private:
@@ -36,7 +35,6 @@ private:
 
     Mill               mill;
     Key                key;
-    coordSystem        cordS;
 
     // вырезы
     struct snakeCut
