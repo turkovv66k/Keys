@@ -23,22 +23,17 @@ void snakeCutting::setViewer(PathViewer* viewer)
     pathViewer = viewer;
 }
 
-void snakeCutting::cutsFilling()
-{   // наполняем массив вырезами
-    cuts.clear();
-    cuts.append({6, 7, 1});
-    cuts.append({10, 5, 1});
-    cuts.append({14, 6, 1});
-    cuts.append({18, 7, 1});
-    cuts.append({22, 5, 1});
-}
-
-void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSide, coordSystem CS)
+// нарезка ширины равной ширины фрезы
+void snakeCutting::singleCutting(Mill                          mill,
+                                            Key                key,
+                                            QVector<snakeCut>  cuts,
+                                            bool               isBaseSupport,
+                                            bool               isLeftSide,
+                                            coordSystem        CS)
 {
-    cutsFilling();
-
     // коэффициент расчёта X координаты если от левой стороны то 1 если от правой то -1
     int k = 1;
+
     if (isBaseSupport)
     {
         // заменяем L с кноца в начало если упор в торец и сбрасываем длину ключа key.L
@@ -150,16 +145,45 @@ void snakeCutting::cutting(Mill mill, Key key, bool isBaseSupport, bool isLeftSi
             CS.Z0 + key.H + 2);
         }
     }
-    else
-    {   // несколько проходов если толщина больше диаметра фрезы и  меньше ширины ключа - 2 мм (2 мм условно) ((проверка
-        // на дурочка))
-        if ((Hzm > mill.D) && (Hzm < key.W - 2))
+}
+
+void snakeCutting::cutsFilling1()
+{   // наполняем массив вырезами
+    cuts1.clear();
+    // cuts1.append({0, 7, 1});
+    cuts1.append({10, 5, 1});
+    cuts1.append({20, 7, 1});
+    cuts1.append({30, 6, 1});
+    // cuts1.append({25, 5, 1});
+}
+
+void snakeCutting::cutsFilling2()
+{   // наполняем массив вырезами
+    cuts2.clear();
+    cuts2.append({5, 7, 1});
+    cuts2.append({15, 5, 1});
+    cuts2.append({25, 6, 1});
+    // cuts2.append({35, 7, 1});
+    // cuts2.append({27.5, 5, 1});
+}
+
+void snakeCutting::middleCuttingOut()
+{
+    for (int i = cuts2.length(); i--; i < 0)
+    {
+        cuts1[i].L - cuts2[i].L;
+    }
+}
+
+void snakeCutting::multiCutting(Mill mill, Key key, bool isBaseSupport, coordSystem CS)
+{   // несколько проходов если толщина больше диаметра фрезы и  меньше ширины ключа - 2 мм (2 мм условно) ((проверка
+    // на дурочка))
+    if ((Hzm > mill.D) && (Hzm < key.W - 2))
+    {
+        for (int i = Hzm / mill.D; i > 0; i--)
         {
-            for (int i = Hzm / mill.D; i > 0; i--)
-            {
-                for (int j = Zdept / mill.DeltaH; j > 0; j++)
-                {}
-            }
+            for (int j = Zdept / mill.DeltaH; j > 0; j++)
+            {}
         }
     }
 }

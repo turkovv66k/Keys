@@ -22,19 +22,22 @@ MainWindow::MainWindow(QWidget* parent)
 
     snakeCutting::setViewer(viewer);
 
+    SC->cutsFilling1();
+    SC->cutsFilling2();
+
     // CS2->X0 = -20;
+    // 1 true если упор в торец 2 true если у ключа база слева
     QTimer::singleShot(0,
                           this,
                           [this](){
-                              SC->cutting(*M, *K, false, true, *CS1);               // false       // 1 true если упор в
-                                                                                    // торец
-                          });                               // 2 true если у ключа база слева
+                              SC->singleCutting(*M, *K, SC->cuts1, false, true, *CS1);
+                          });
 
-    CS2->X0 = 20;
+    CS2->X0 = 17;
     QTimer::singleShot(0,
                        this,
                        [this](){
-                           SC->cutting(*M, *K, false, false, *CS2);
+                           SC->singleCutting(*M, *K, SC->cuts2, false, false, *CS2);
                        });
 
     QWidget*     central = new QWidget(this);

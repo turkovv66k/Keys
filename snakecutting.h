@@ -13,11 +13,28 @@ public:
     snakeCutting();
 
 
+    // вырезы
+    struct snakeCut
+    {
+        // Расстояние от упорного торца до центра выреза
+        double  B;
+        // Расстояние от базового ребра (плоскости) до выреза
+        double  L;
+        // Ширина площадки на дне выреза
+        double  D;
+    };
+
     // отрисовка
     static void setViewer(PathViewer* viewer);
 
-    void        cutting(Mill, Key, bool, bool, coordSystem);
-    void        cutsFilling();
+    QVector<snakeCut>  cuts1;
+    QVector<snakeCut>  cuts2;
+
+    void        singleCutting(Mill, Key, QVector<snakeCut>, bool, bool, coordSystem);
+    void        multiCutting(Mill, Key, bool, coordSystem);
+    void        middleCuttingOut();
+    void        cutsFilling1();
+    void        cutsFilling2();
     void        moveTo(double X, double Y, double Z);
 
 private:
@@ -35,17 +52,4 @@ private:
 
     Mill               mill;
     Key                key;
-
-    // вырезы
-    struct snakeCut
-    {
-        // Расстояние от упорного торца до центра выреза
-        double  B;
-        // Расстояние от базового ребра (плоскости) до выреза
-        double  L;
-        // Ширина площадки на дне выреза
-        double  D;
-    };
-
-    QVector<snakeCut>  cuts;
 };
