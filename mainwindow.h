@@ -1,12 +1,10 @@
 #pragma once
 
 #include <QMainWindow>
-
-class Key;
-class Mill;
-class snakeCutting;
-class PathViewer;
-class coordSystem;
+#include "Key.h"
+#include "Mill.h"
+#include "coordSystem.h"
+#include "snakeCutting.h"
 
 class MainWindow : public QMainWindow
 {
@@ -14,14 +12,16 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);
-    ~MainWindow();
+
 
 private:
-    Key*          K;
-    Mill*         M;
-    snakeCutting* SC;
-    coordSystem*  CS1;
-    coordSystem*  CS2;
+   QScopedPointer<Key>          K1;
+    QScopedPointer<Key>         K2;
+   QScopedPointer<Mill>         M;
+
+   QScopedPointer<snakeCutting> SC;
+   QScopedPointer<coordSystem> CS1;
+   QScopedPointer<coordSystem> CS2;
 
     PathViewer*   viewer;
 };

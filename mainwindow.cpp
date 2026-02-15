@@ -12,11 +12,12 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
-    K = new Key();
-    M = new Mill();
-    SC = new snakeCutting();
-    CS1 = new coordSystem();
-    CS2 = new coordSystem();
+    K1.reset(new Key());
+    K2.reset(new Key());
+    M.reset(new Mill());
+    SC.reset(new snakeCutting());
+    CS1.reset(new coordSystem());
+    CS2.reset(new coordSystem());
 
     viewer = new PathViewer(this);
 
@@ -30,15 +31,20 @@ MainWindow::MainWindow(QWidget* parent)
     QTimer::singleShot(0,
                           this,
                           [this](){
-                              SC->singleCutting(*M, *K, SC->cuts1, false, true, *CS1);
+                              SC->singleCutting(*M, *K1, SC->cuts1, true, true, *CS1);
                           });
 
     CS2->X0 = 17;
     QTimer::singleShot(0,
                        this,
                        [this](){
-                           SC->singleCutting(*M, *K, SC->cuts2, false, false, *CS2);
+                           SC->singleCutting(*M, *K2, SC->cuts2, true, false, *CS2);
                        });
+
+
+    // QTimer::singleShot(0, this, [this](){
+    //     SC->middlePocketFill(*M.get(), *CS1.get(), *CS2.get(),true);
+    // });
 
     QWidget*     central = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(central);
@@ -52,11 +58,3 @@ MainWindow::MainWindow(QWidget* parent)
     resize(1000, 700);
 }
 
-MainWindow::~MainWindow()
-{
-    delete K;
-    delete M;
-    delete SC;
-    delete CS1;
-    delete CS2;
-}

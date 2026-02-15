@@ -4,6 +4,7 @@
 #include "Key.h"
 #include "mill.h"
 #include "QVector"
+#include <qscopedpointer.h>
 
 class PathViewer;
 
@@ -13,31 +14,42 @@ public:
     snakeCutting();
 
 
+
     // вырезы
     struct snakeCut
     {
         // Расстояние от упорного торца до центра выреза
-        double  B;
+        double  B = 0;
         // Расстояние от базового ребра (плоскости) до выреза
-        double  L;
+        double  L = 0;
         // Ширина площадки на дне выреза
-        double  D;
+        double  D = 0;
     };
-
-    // отрисовка
-    static void setViewer(PathViewer* viewer);
 
     QVector<snakeCut>  cuts1;
     QVector<snakeCut>  cuts2;
+    // отрисовка
+    static void setViewer(PathViewer* viewer);
 
-    void        singleCutting(Mill, Key, QVector<snakeCut>, bool, bool, coordSystem);
+    void        singleCutting(Mill& mill, Key& key, QVector<snakeCut>& snakeCuts, bool isBaseSupport, bool isLeftSide, coordSystem& cs);
     void        multiCutting(Mill, Key, bool, coordSystem);
-    void        middleCuttingOut();
+
+    void        middlePocketFill(Mill& mill, coordSystem& CS1, coordSystem& CS2, bool isBaseSupport);
+
+    double getL(const QVector<snakeCut>& cuts, double y) const;//?
+
     void        cutsFilling1();
     void        cutsFilling2();
-    void        moveTo(double X, double Y, double Z);
+
 
 private:
+    // метод который возвращает массив для нарезки от базы или от вставки  (отнимает от вырезов длину ключа и ставит длину ключа 0 )
+    QVector<snakeCutting::snakeCut> offsetCuts(QVector<snakeCut>& cuts, Key& key);
+
+    // метод передвижения по координатам
+    void        moveTo(double X, double Y, double Z);
+    // заполнение массивов
+
     // отрисовка
     static PathViewer* pathViewer;
 
@@ -47,9 +59,9 @@ private:
     double             Hzm = 2;
     // Угол заходной фаски
     int                bevelAngle = 30;
-    // Глубина змейки считается от базы ( толщина ключа - толщина змейки )
-    double             Zdept = 0.1;
+    // Глубина змейки считается от базы
+    double             Zdept = 0.2;
 
-    Mill               mill;
-    Key                key;
+    QScopedPointer<Key>         key;
+    QScopedPointer<Mill>        mill;
 };
