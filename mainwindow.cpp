@@ -28,23 +28,30 @@ MainWindow::MainWindow(QWidget* parent)
 
     // CS2->X0 = -20;
     // 1 true если упор в торец 2 true если у ключа база слева
-    QTimer::singleShot(0,
-                          this,
-                          [this](){
-                              SC->singleCutting(*M, *K1, SC->cuts1, true, true, *CS1);
-                          });
-
-    CS2->X0 = 17;
-    QTimer::singleShot(0,
-                       this,
-                       [this](){
-                           SC->singleCutting(*M, *K2, SC->cuts2, true, false, *CS2);
-                       });
-
-
-    // QTimer::singleShot(0, this, [this](){
-    //     SC->middlePocketFill(*M.get(), *CS1.get(), *CS2.get(),true);
+    // QTimer::singleShot(0,
+    // this,
+    // [this](){
+    // SC->singleCutting(*M, *K1, SC->cuts1, false, true, *CS1);
     // });
+
+    CS2->X0 = 20;
+    // QTimer::singleShot(0,
+    // this,
+    // [this](){
+    // SC->singleCutting(*M, *K2, SC->cuts2, false, false, *CS2);
+    // });
+
+    QTimer::singleShot(0,
+    this,
+    [this](){
+        SC->doubleCutting(*M, *K1, *K2, *CS1, *CS2);
+    });
+
+    QTimer::singleShot(0,
+    this,
+    [this](){
+        SC->betweenCutting(*M, *CS1, *CS2);
+    });
 
     QWidget*     central = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(central);
@@ -57,4 +64,3 @@ MainWindow::MainWindow(QWidget* parent)
     setWindowTitle("Snake Cutting Viewer");
     resize(1000, 700);
 }
-
