@@ -38,7 +38,6 @@ public:
                                           bool               isLeftSide,
                                           coordSystem&       cs);
 
-    void                            doubleCutting(Mill& mill, Key& key1, Key& key2, coordSystem& cs1, coordSystem& cs2);
     void                            betweenCutting(Mill& mill, coordSystem& cs1, coordSystem& cs2);
 
     // void                            multiCutting(Mill, Key, bool, coordSystem);
