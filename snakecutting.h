@@ -38,7 +38,14 @@ public:
                                           bool               isLeftSide,
                                           coordSystem&       cs);
 
-    void                            betweenCutting(Mill& mill, coordSystem& cs1, coordSystem& cs2);
+    void doubleCutting(
+        Mill& mill,
+        QVector<snakeCut>& cuts1,
+        QVector<snakeCut>& cuts2,
+        coordSystem& CS1,
+        coordSystem& CS2,
+        Key& key,
+        double Zdept);
 
     // void                            multiCutting(Mill, Key, bool, coordSystem);
 
@@ -57,7 +64,7 @@ private:
 
     snakeCut                        getLastCut(QVector<snakeCut>& cuts);
 
-    double                          interpolateL(QVector<snakeCut>& cuts, double B);
+    double                          interpolateL(const QVector<snakeCut>& cuts, double B);
 
     // коэффициент расчёта X координаты если от левой стороны то 1 если от правой то -1
     int                             getCutsSide(bool);

@@ -168,90 +168,124 @@ int snakeCutting::getCutsSide(bool  isLeftSide)
     return isLeftSide ? 1 : -1;
 }
 
-double snakeCutting::interpolateL(QVector<snakeCut>& cuts, double B)
+double snakeCutting::interpolateL(const QVector<snakeCut>& cuts, double B)
 {
     if (cuts.isEmpty())
-    {
-        return 0;
-    }
+        return 0.0;
 
-    if (B <= cuts.first().B)
-    {
+    // Если вне диапазона — возвращаем край
+    if (B >= cuts.first().B)
         return cuts.first().L;
-    }
 
-    if (B >= cuts.last().B)
-    {
+    if (B <= cuts.last().B)
         return cuts.last().L;
-    }
 
-    for (int i = 0; i < cuts.size() - 1; i++)
+    // Ищем сегмент ломаной
+    for (int i = 0; i < cuts.size() - 1; ++i)
     {
-        const snakeCut& c0 = cuts[i];
-        const snakeCut& c1 = cuts[i + 1];
-        if ((B >= c0.B) && (B <= c1.B))
+        double B1 = cuts[i].B;
+        double B2 = cuts[i + 1].B;
+
+        if ((B1 >= B && B >= B2) || (B2 >= B && B >= B1))
         {
-            double t = (B - c0.B) / (c1.B - c0.B);
-            return c0.L + t * (c1.L - c0.L);
+            double L1 = cuts[i].L;
+            double L2 = cuts[i + 1].L;
+
+            if (std::abs(B1 - B2) < 1e-9)
+                return L1;
+
+            double t = (B - B2) / (B1 - B2);
+            return L2 + t * (L1 - L2);
         }
     }
 
+    // fallback (не должно происходить)
     return cuts.last().L;
 }
 
 
-void snakeCutting::betweenCutting(Mill& mill, coordSystem& cs1, coordSystem& cs2)
+void snakeCutting::doubleCutting(
+    Mill& mill,
+    QVector<snakeCut>& cuts1,
+    QVector<snakeCut>& cuts2,
+    coordSystem& CS1,
+    coordSystem& CS2,
+    Key& key,
+    double Zdept)
 {
-    double B_end = std::min(getLastCut(cuts1).B, getLastCut(cuts2).B) - mill.D / 2;
-    double B_start = std::max(getFirstCut(cuts1).B, getFirstCut(cuts2).B)+ mill.D / 2;
+    int leftPasses  = 2;
+    int rightPasses = 2;
 
-    if (B_end >= B_start)
+    int passesZ = (int)ceil(Zdept / mill.DeltaH);
+
+    auto runSnake = [&](QVector<snakeCut>& cuts,
+                        coordSystem& CS,
+                        int kSide,
+                        int repeatCount,
+                        bool isLeftSnake)
     {
-        return;
-    }
+        auto maxCut = getFirstCut(cuts);
+        double maxL = maxCut.L;
 
-    int    passes = (int)ceil(Zdept / mill.DeltaH);
-    double X_start = cs1.X0 + (interpolateL(cuts1, B_end) + mill.D / 2);
-
-    moveTo(X_start, cs1.Y0 + B_end, cs1.Z0 + 2);
-
-    for (int i = 1; i <= passes; i++)
-    {
-        double Z = cs1.Z0 - std::min(i * mill.DeltaH, Zdept);
-
-        moveTo(X_start, cs1.Y0 + B_end, Z);
-
-        bool goingRight = true;
-
-        //идем от B_start до B_end
-        for (double B = B_start; B >= B_end; B -= mill.D / 2)
+        for(int offsetIndex = 0; offsetIndex < repeatCount; ++offsetIndex)
         {
-            double Y = cs1.Y0 + B;
-            double X_left = cs1.X0 + (interpolateL(cuts1, B) + mill.D / 2);
-            double X_right = cs2.X0 - (interpolateL(cuts2, B) + mill.D / 2);
+            double offset = offsetIndex * mill.D;
 
-            if (X_left >= X_right)
-            {
-                continue;
-            }
+            // направление смещения:
+            double shift = isLeftSnake ? offset : -offset;
 
-            if (goingRight)
-            {
-                moveTo(X_left, Y, Z);
-                moveTo(X_right, Y, Z);
-            }
-            else
-            {
-                moveTo(X_right, Y, Z);
-                moveTo(X_left, Y, Z);
-            }
+            moveTo(CS.X0 + kSide*(maxL + mill.D/2 + shift),
+                   CS.Y0 + key.L + 2*mill.D,
+                   CS.Z0 + key.H + 2);
 
-            goingRight = !goingRight;
+            for(int p = 1; p <= passesZ; ++p)
+            {
+                double cutZ =
+                    CS.Z0 + key.H -
+                    std::min(p * mill.DeltaH, Zdept);
+
+                moveTo(CS.X0 + kSide*(maxL + mill.D/2 + shift),
+                       CS.Y0 + key.L + 2*mill.D,
+                       cutZ);
+
+                for(int j = cuts.length()-1; j >= 0; j--)
+                {
+                    double X =
+                        CS.X0 +
+                        kSide*(cuts[j].L + mill.D/2 + shift);
+
+                    double Y1 =
+                        CS.Y0 + key.L -
+                        ((key.L - cuts[j].B) -
+                         (cuts[j].D/2 + deltaD));
+
+                    double Y2 =
+                        CS.Y0 + key.L -
+                        ((key.L - cuts[j].B) +
+                         (cuts[j].D/2 + deltaD));
+
+                    moveTo(X, Y1, cutZ);
+                    moveTo(X, Y2, cutZ);
+
+                    if(j == 0)
+                    {
+                        moveTo(X, Y2, CS.Z0 + key.H + 2);
+                    }
+                }
+            }
         }
+    };
 
-        moveTo(X_start, cs1.Y0 + B_end, cs1.Z0 + 2);
-    }
+    // левая змейка → внутрь вправо
+    runSnake(cuts1, CS1, +1, leftPasses, true);
+
+    // правая змейка → внутрь влево (навстречу первой)
+    runSnake(cuts2, CS2, -1, rightPasses, false);
+    // diff
+    CS2.X0 =  CS2.X0 - mill.D;
 }
+
+
 
 void snakeCutting::cutsFilling1()
 {   // наполняем массив вырезами

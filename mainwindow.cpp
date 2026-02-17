@@ -27,14 +27,14 @@ MainWindow::MainWindow(QWidget* parent)
     SC->cutsFilling2();
 
     // CS2->X0 = -20;
-    // 1 true если упор в торец 2 true если у ключа база слева
+  //  1 true если упор в торец 2 true если у ключа база слева
     QTimer::singleShot(0,
     this,
     [this](){
     SC->singleCutting(*M, *K1, SC->cuts1, false, true, *CS1);
     });
 
-    CS2->X0 = 20;
+ CS2->X0 = 20;
     QTimer::singleShot(0,
     this,
     [this](){
@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget* parent)
     QTimer::singleShot(0,
     this,
     [this](){
-        SC->betweenCutting(*M, *CS1, *CS2);
+        SC->doubleCutting(*M,SC->cuts1,SC->cuts2, *CS1, *CS2,*K1,1);
     });
 
     QWidget*     central = new QWidget(this);
