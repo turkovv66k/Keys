@@ -38,14 +38,13 @@ public:
                                           bool               isLeftSide,
                                           coordSystem&       cs);
 
-    void doubleCutting(
-        Mill& mill,
-        QVector<snakeCut>& cuts1,
-        QVector<snakeCut>& cuts2,
-        coordSystem& CS1,
-        coordSystem& CS2,
-        Key& key,
-        double Zdept);
+    void                            doubleCutting(Mill& mill,
+        QVector<snakeCut>&                              cuts1,
+        QVector<snakeCut>&                              cuts2,
+        coordSystem&                                    CS1,
+        coordSystem&                                    CS2,
+        Key&                                            key,
+        double                                          Zdept);
 
     // void                            multiCutting(Mill, Key, bool, coordSystem);
 
