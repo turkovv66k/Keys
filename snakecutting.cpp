@@ -211,79 +211,139 @@ double snakeCutting::interpolateL(const QVector<snakeCut>& cuts, double B)
     return cuts.last().L;
 }
 
-void snakeCutting::doubleCutting(Mill& mill,
-    QVector<snakeCut>&                 cuts1,
-    QVector<snakeCut>&                 cuts2,
-    coordSystem&                       CS1,
-    coordSystem&                       CS2,
-    Key&                               key,
-    double                             Zdept)
+void snakeCutting::doubleCutting(Mill&              mill,
+                                 QVector<snakeCut>& cuts1,
+                                 QVector<snakeCut>& cuts2,
+                                 coordSystem&       CS1,
+                                 coordSystem&       CS2,
+                                 Key&               key,
+                                 double             Zdept)
 {
-    int  leftPasses = 1;
-    int  rightPasses = 1;
+    // левая змейка — один проход шириной mill.D
+    singleCutting(mill, key, cuts1, false, true,  CS1);
 
-    int  passesZ = (int)ceil(Zdept / mill.DeltaH);
+    // правая змейка — один проход шириной mill.D
+    singleCutting(mill, key, cuts2, false, false, CS2);
 
-    auto runSnake = [&](QVector<snakeCut>& cuts,
-                        coordSystem& CS,
-                        int kSide,
-                        int repeatCount,
-                        bool isLeftSnake){
-        auto   maxCut = getFirstCut(cuts);
-        double maxL = maxCut.L;
+    // сдвигаем края внутрь на mill.D (уже вырезано)
+    CS1.X0 += mill.D;
+    CS2.X0 -= mill.D;
 
-        for (int offsetIndex = 0; offsetIndex < repeatCount; ++offsetIndex)
+    // считаем оставшийся зазор между змейками
+    double xLeft = CS1.X0 + getMaxL(cuts1);
+    double xRight = CS2.X0 - getMaxL(cuts2);
+    double gap = xRight - xLeft;
+
+    if (gap <= 0)
+    {
+        return; // змейки уже перекрылись — зачистка не нужна
+    }
+
+    // количество проходов для зачистки зазора
+    int fillPasses = (int)ceil(gap / mill.D);
+
+    fillInnerZone(mill, cuts1, cuts2, CS1, CS2, key, Zdept, fillPasses);
+}
+
+void snakeCutting::fillInnerZone(Mill&              mill,
+                                 QVector<snakeCut>& cuts1,
+                                 QVector<snakeCut>& cuts2,
+                                 coordSystem&       CS1,
+                                 coordSystem&       CS2,
+                                 Key&               key,
+                                 double             Zdept,
+                                 int                fillPasses)
+{
+    int      passesZ = (int)ceil(Zdept / mill.DeltaH);
+
+    double   xLeft = CS1.X0 + getMaxL(cuts1);
+    double   xRight = CS2.X0 - getMaxL(cuts2);
+
+    double   Ystart = CS1.Y0 + getGlobalMaxB(cuts1, cuts2);
+
+    // последний вырез из каждого массива — берём тот у которого B меньше
+    snakeCut lastCut1 = getLastCut(cuts1);
+    snakeCut lastCut2 = getLastCut(cuts2);
+    snakeCut lastCut = (lastCut1.B < lastCut2.B) ? lastCut1 : lastCut2;
+
+    // граница снизу как в singleCutting j==0
+    double   Yend = CS1.Y0 + lastCut.B - (lastCut.D / 2.0 + lastCut.D);
+
+    for (int p = 1; p <= passesZ; ++p)
+    {
+        double cutZ = CS1.Z0 + key.H - std::min(p * mill.DeltaH, Zdept);
+
+        for (int i = 0; i < fillPasses; ++i)
         {
-            double offset = offsetIndex * mill.D;
-
-            // направление смещения:
-            double shift = isLeftSnake ? offset : -offset;
-
-            moveTo(CS.X0 + kSide * (maxL + mill.D / 2 + shift),
-                   CS.Y0 + key.L + 2 * mill.D,
-                   CS.Z0 + key.H + 2);
-
-            for (int p = 1; p <= passesZ; ++p)
+            double X = xLeft + i * mill.D + mill.D / 2.0;
+            if (X > xRight - mill.D / 2.0)
             {
-                double cutZ = CS.Z0 + key.H
-                                                        - std::min(p * mill.DeltaH, Zdept);
+                X = xRight - mill.D / 2.0;
+            }
 
-                moveTo(CS.X0 + kSide * (maxL + mill.D / 2 + shift),
-                       CS.Y0 + key.L + 2 * mill.D,
-                       cutZ);
+            moveTo(X, Ystart + 2.0 * mill.D, CS1.Z0 + key.H + 2.0);
+            moveTo(X, Ystart + 2.0 * mill.D, cutZ);
 
-                for (int j = cuts.length() - 1; j >= 0; j--)
-                {
-                    double X = CS.X0
-                                                        + kSide * (cuts[j].L + mill.D / 2 + shift);
-
-                    double Y1 = CS.Y0 + key.L
-                                                                - ((key.L - cuts[j].B)
-                                                                    - (cuts[j].D / 2 + deltaD));
-
-                    double Y2 = CS.Y0 + key.L
-                                                                - ((key.L - cuts[j].B)
-                                                                    + (cuts[j].D / 2 + deltaD));
-
-                    moveTo(X, Y1, cutZ);
-                    moveTo(X, Y2, cutZ);
-
-                    if (j == 0)
-                    {
-                        moveTo(X, Y2, CS.Z0 + key.H + 2);
-                    }
-                }
+            if (i % 2 == 0)
+            {
+                moveTo(X, Ystart, cutZ);
+                moveTo(X, Yend,   cutZ);
+            }
+            else
+            {
+                moveTo(X, Yend,   cutZ);
+                moveTo(X, Ystart, cutZ);
             }
         }
-    };
 
-    // левая змейка → внутрь вправо
-    runSnake(cuts1, CS1, +1, leftPasses,  true);
-    CS1.X0 = CS1.X0 + mill.D;
-    // правая змейка → внутрь влево (навстречу первой)
-    runSnake(cuts2, CS2, -1, rightPasses, false);
+        moveTo(xLeft, Ystart + 2.0 * mill.D, CS1.Z0 + key.H + 2.0);
+    }
+}
 
-    CS2.X0 = CS2.X0 - mill.D;
+double snakeCutting::getGlobalMaxB(const QVector<snakeCut>& cuts1, const QVector<snakeCut>& cuts2)
+{
+    double maxB = cuts1[0].B;
+
+    for (const auto& c : cuts1)
+    {
+        maxB = std::max(maxB, c.B);
+    }
+
+    for (const auto& c : cuts2)
+    {
+        maxB = std::max(maxB, c.B);
+    }
+
+    return maxB;
+}
+
+double snakeCutting::getGlobalMinB(const QVector<snakeCut>& cuts1, const QVector<snakeCut>& cuts2)
+{
+    double minB = cuts1[0].B;
+
+    for (const auto& c : cuts1)
+    {
+        minB = std::min(minB, c.B);
+    }
+
+    for (const auto& c : cuts2)
+    {
+        minB = std::min(minB, c.B);
+    }
+
+    return minB;
+}
+
+double snakeCutting::getMaxL(const QVector<snakeCut>& cuts)
+{
+    double maxL = cuts[0].L;
+
+    for (const auto& c : cuts)
+    {
+        maxL = std::max(maxL, c.L);
+    }
+
+    return maxL;
 }
 
 void snakeCutting::cutsFilling1()

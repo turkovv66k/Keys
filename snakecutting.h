@@ -65,6 +65,22 @@ private:
 
     double                          interpolateL(const QVector<snakeCut>& cuts, double B);
 
+    double                          getMaxL(const QVector<snakeCut>& cuts);
+
+    double                          getGlobalMinB(const QVector<snakeCut>& cuts1, const QVector<snakeCut>& cuts2);
+
+    double                          getGlobalMaxB(const QVector<snakeCut>& cuts1, const QVector<snakeCut>& cuts2);
+
+    void                            fillInnerZone(Mill& mill,
+                                     QVector<snakeCut>& cuts1,
+                                     QVector<snakeCut>& cuts2,
+                                     coordSystem&       CS1,
+                                     coordSystem&       CS2,
+                                     Key&               key,
+                                     double             Zdept,
+                                     int                fillPasses);
+
+
     // коэффициент расчёта X координаты если от левой стороны то 1 если от правой то -1
     int                             getCutsSide(bool);
 
