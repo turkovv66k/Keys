@@ -219,29 +219,25 @@ void snakeCutting::doubleCutting(Mill&              mill,
                                  Key&               key,
                                  double             Zdept)
 {
-    // левая змейка — один проход шириной mill.D
-    singleCutting(mill, key, cuts1, false, true,  CS1);
-
-    // правая змейка — один проход шириной mill.D
-    singleCutting(mill, key, cuts2, false, false, CS2);
-
-    // сдвигаем края внутрь на mill.D (уже вырезано)
+    // левая змейка
+    singleCutting(mill, key, cuts1, false, true, CS1);
     CS1.X0 += mill.D;
+
+    // правая змейка
+    singleCutting(mill, key, cuts2, false, false, CS2);
     CS2.X0 -= mill.D;
 
-    // считаем оставшийся зазор между змейками
+    // зазор между змейками
     double xLeft = CS1.X0 + getMaxL(cuts1);
     double xRight = CS2.X0 - getMaxL(cuts2);
     double gap = xRight - xLeft;
 
     if (gap <= 0)
     {
-        return; // змейки уже перекрылись — зачистка не нужна
+        return;
     }
 
-    // количество проходов для зачистки зазора
     int fillPasses = (int)ceil(gap / mill.D);
-
     fillInnerZone(mill, cuts1, cuts2, CS1, CS2, key, Zdept, fillPasses);
 }
 
@@ -259,15 +255,17 @@ void snakeCutting::fillInnerZone(Mill&              mill,
     double   xLeft = CS1.X0 + getMaxL(cuts1);
     double   xRight = CS2.X0 - getMaxL(cuts2);
 
-    double   Ystart = CS1.Y0 + getGlobalMaxB(cuts1, cuts2);
+    // Ystart — первый вырез с макс B из обоих массивов
+    snakeCut firstCut1 = getFirstCut(cuts1);
+    snakeCut firstCut2 = getFirstCut(cuts2);
+    snakeCut firstCut = (firstCut1.B > firstCut2.B) ? firstCut1 : firstCut2;
+    double   Ystart = CS1.Y0 + firstCut.B + firstCut.D / 2.0 + deltaD;
 
-    // последний вырез из каждого массива — берём тот у которого B меньше
+    // Yend — последний вырез с мин B из обоих массивов
     snakeCut lastCut1 = getLastCut(cuts1);
     snakeCut lastCut2 = getLastCut(cuts2);
     snakeCut lastCut = (lastCut1.B < lastCut2.B) ? lastCut1 : lastCut2;
-
-    // граница снизу как в singleCutting j==0
-    double   Yend = CS1.Y0 + lastCut.B - (lastCut.D / 2.0 + lastCut.D);
+    double   Yend = CS1.Y0 + lastCut.B - lastCut.D / 2.0 - lastCut.D;
 
     for (int p = 1; p <= passesZ; ++p)
     {
