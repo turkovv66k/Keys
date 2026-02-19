@@ -210,7 +210,7 @@ void snakeCutting::doubleCutting(Mill&              mill,
     int    passesZ = (int)ceil(Zdept / mill.DeltaH);
     double shift1 = +mill.D * 0.9;
     double shift2 = -mill.D * 0.9;
-    double stepB = mill.D * 0.9;    // шаг между строчками зачистки
+    double stepB = mill.D * 0.9;
 
     auto   snakePass = [&](QVector<snakeCut>& cuts, coordSystem& CS,
                          int kSide, double shift, double cutZ){
@@ -294,23 +294,96 @@ void snakeCutting::doubleCutting(Mill&              mill,
             B -= stepB;
             if (B < B_end)
             {
-                B = B_end;  // последний проход точно на B_end
+                B = B_end;
             }
         }
 
         doRow(B_end);
     };
 
+    auto fillShortSnake = [&](QVector<snakeCut>& cuts, coordSystem& CS,
+                              int kSide, double shift){
+        snakeCut last = getLastCut(cuts);
+        snakeCut minCut = getGlobalMinCut(cuts1, cuts2);
+
+        if (std::abs(last.B - minCut.B) < 1e-9)
+        {
+            return;
+        }
+
+        double B_short = last.B - last.D / 2.0 - deltaD * 5 - stepB;
+        double B_end = minCut.B - deltaD * 5 - minCut.D / 2.0;
+        double X_far = CS.X0 + kSide * (last.L + mill.D / 2.0);
+        double X_near = CS.X0 + kSide * (last.L + mill.D / 2.0) + shift;
+
+        for (int p = 1; p <= passesZ; ++p)
+        {
+            double cutZ = CS.Z0 + key.H - std::min(p * mill.DeltaH, Zdept);
+
+            double B = B_short;
+            while (B > B_end)
+            {
+                moveTo(X_near, CS.Y0 + B, cutZ);
+                moveTo(X_far,  CS.Y0 + B, cutZ);
+                B -= stepB;
+                if (B < B_end)
+                {
+                    B = B_end;
+                }
+            }
+
+            // принудительно последний проход точно на B_end
+            moveTo(X_near, CS.Y0 + B_end, cutZ);
+            moveTo(X_far,  CS.Y0 + B_end, cutZ);
+        }
+    };
+
     double Zsafe = CS1.Z0 + key.H + 2.0;
 
     moveTo(CS1.X0 + getMaxL(cuts1) + mill.D / 2, CS1.Y0 + key.L + 2 * mill.D, Zsafe);
 
-    for (int p = 1; p <= passesZ; (((((((((((((((((((((((((((++p))))))))))))))))))))))))))))
+    for (int p = 1; p <= passesZ; (((((((++p))))))))
     {
         double cutZ = CS1.Z0 + key.H - std::min(p * mill.DeltaH, Zdept);
+
         snakePass(cuts1, CS1, +1, shift1, cutZ);
         snakePass(cuts2, CS2, -1, shift2, cutZ);
         betweenPass(cutZ);
+
+        // дорезка короткой змейки — тоже на том же Z
+        auto runFillShort = [&](QVector<snakeCut>& cuts, coordSystem& CS,
+                                int kSide, double shift){
+            snakeCut last = getLastCut(cuts);
+            snakeCut minCut = getGlobalMinCut(cuts1, cuts2);
+
+            if (std::abs(last.B - minCut.B) < 1e-9)
+            {
+                return;
+            }
+
+            double B_short = last.B - last.D / 2.0 - deltaD * 5 - stepB;
+            double B_end = minCut.B - deltaD * 5 - minCut.D / 2.0;
+            double X_far = CS.X0 + kSide * (last.L + mill.D / 2.0);
+            double X_near = CS.X0 + kSide * (last.L + mill.D / 2.0) + shift;
+
+            double B = B_short;
+            while (B > B_end)
+            {
+                moveTo(X_near, CS.Y0 + B, cutZ);
+                moveTo(X_far,  CS.Y0 + B, cutZ);
+                B -= stepB;
+                if (B < B_end)
+                {
+                    B = B_end;
+                }
+            }
+
+            moveTo(X_near, CS.Y0 + B_end, cutZ);
+            moveTo(X_far,  CS.Y0 + B_end, cutZ);
+        };
+
+        runFillShort(cuts1, CS1, +1, shift1);
+        runFillShort(cuts2, CS2, -1, shift2);
     }
 }
 
