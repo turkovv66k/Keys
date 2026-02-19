@@ -44,7 +44,8 @@ public:
         coordSystem&                                    CS1,
         coordSystem&                                    CS2,
         Key&                                            key,
-        double                                          Zdept);
+        double                                          Zdept,
+        bool                                            isBaseSupport);
 
     // void                            multiCutting(Mill, Key, bool, coordSystem);
 

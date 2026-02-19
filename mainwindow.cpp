@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget* parent)
     // SC->singleCutting(*M, *K1, SC->cuts1, false, true, *CS1);
     // });
 
-    CS2->X0 = 20;
+    CS2->X0 = 19;
     // QTimer::singleShot(0,
     // this,
     // [this](){
@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget* parent)
     QTimer::singleShot(0,
     this,
     [this](){
-        SC->doubleCutting(*M, SC->cuts1, SC->cuts2, *CS1, *CS2, *K1, 1);
+        SC->doubleCutting(*M, SC->cuts1, SC->cuts2, *CS1, *CS2, *K1, 1, true);
     });
 
     QWidget*     central = new QWidget(this);

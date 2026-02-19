@@ -29,7 +29,7 @@ private:
     // отображение
     double              scale = 10.0;
     double              offsetX = 500.0;
-    double              offsetY = 350.0;
+    double              offsetY = 500.0;
 
     double              gridStepMm = 1.0;
     int                 boldEvery = 10;

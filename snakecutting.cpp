@@ -29,8 +29,10 @@ void snakeCutting::singleCutting(Mill& mill, Key& key, QVector<snakeCut>& cuts,
                                  bool isBaseSupport, bool isLeftSide, coordSystem& CS)
 {
     if (isBaseSupport)
+    {
         cuts = offsetCuts(cuts, key);
-
+        key.L = 0;
+    }
     auto   maxCut = getFirstCut(cuts);
     double maxL   = maxCut.L;
     int    k      = getCutsSide(isLeftSide);
@@ -38,6 +40,7 @@ void snakeCutting::singleCutting(Mill& mill, Key& key, QVector<snakeCut>& cuts,
     moveTo(CS.X0 + k * (maxL + mill.D / 2), CS.Y0 + key.L + 2 * mill.D, CS.Z0 + key.H + 2);
 
     int passes = (int)ceil(Zdept / mill.DeltaH);
+
     for (int i = 1; i <= passes; i++)
     {
         double cutZ = CS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept);
@@ -67,8 +70,16 @@ void snakeCutting::singleCutting(Mill& mill, Key& key, QVector<snakeCut>& cuts,
 }
 
 void snakeCutting::doubleCutting(Mill& mill, QVector<snakeCut>& cuts1, QVector<snakeCut>& cuts2,
-                                 coordSystem& CS1, coordSystem& CS2, Key& key, double Zdept)
+                                 coordSystem& CS1, coordSystem& CS2, Key& key,
+                                 double Zdept, bool isBaseSupport)
 {
+    if (isBaseSupport)
+    {
+        cuts1 = offsetCuts(cuts1, key);
+        cuts2 = offsetCuts(cuts2, key);
+            key.L = 0;
+    }
+
     int    passesZ = (int)ceil(Zdept / mill.DeltaH);
     double stepB   = mill.D * 0.8;
 
@@ -153,7 +164,6 @@ QVector<snakeCutting::snakeCut> snakeCutting::offsetCuts(QVector<snakeCut>& cuts
 {
     if (cuts.isEmpty()) return cuts;
     for (auto& c : cuts) c.B -= key.L;
-    key.L = 0;
     return cuts;
 }
 
