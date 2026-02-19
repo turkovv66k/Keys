@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget* parent)
     // SC->singleCutting(*M, *K1, SC->cuts1, false, true, *CS1);
     // });
 
-    CS2->X0 = 23;
+    CS2->X0 = 20;
     // QTimer::singleShot(0,
     // this,
     // [this](){
