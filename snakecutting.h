@@ -63,13 +63,13 @@ private:
 
     snakeCut                        getLastCut(QVector<snakeCut>& cuts);
 
-    double                          interpolateL(const QVector<snakeCut>& cuts, double B);
+    double                          interpolateL(QVector<snakeCut>& cuts, double B);
 
     double                          getMaxL(const QVector<snakeCut>& cuts);
 
-    double                          getGlobalMinB(const QVector<snakeCut>& cuts1, const QVector<snakeCut>& cuts2);
+    snakeCut                        getGlobalMinCut(const QVector<snakeCut>& cuts1, const QVector<snakeCut>& cuts2);
 
-    double                          getGlobalMaxB(const QVector<snakeCut>& cuts1, const QVector<snakeCut>& cuts2);
+    snakeCut                        getGlobalMaxCut(const QVector<snakeCut>& cuts1, const QVector<snakeCut>& cuts2);
 
     void                            fillInnerZone(Mill& mill,
                                      QVector<snakeCut>& cuts1,

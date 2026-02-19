@@ -28,18 +28,18 @@ MainWindow::MainWindow(QWidget* parent)
 
     // CS2->X0 = -20;
     // 1 true если упор в торец 2 true если у ключа база слева
-    QTimer::singleShot(0,
-    this,
-    [this](){
-        SC->singleCutting(*M, *K1, SC->cuts1, false, true, *CS1);
-    });
+    // QTimer::singleShot(0,
+    // this,
+    // [this](){
+    // SC->singleCutting(*M, *K1, SC->cuts1, false, true, *CS1);
+    // });
 
     CS2->X0 = 30;
-    QTimer::singleShot(0,
-    this,
-    [this](){
-        SC->singleCutting(*M, *K2, SC->cuts2, false, false, *CS2);
-    });
+    // QTimer::singleShot(0,
+    // this,
+    // [this](){
+    // SC->singleCutting(*M, *K2, SC->cuts1, false, true, *CS2);
+    // });
 
     QTimer::singleShot(0,
     this,
