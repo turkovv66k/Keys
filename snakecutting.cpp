@@ -151,7 +151,7 @@ void snakeCutting::doubleCutting(Mill&                          mill,
 
     moveTo(CS1.X0 + firstCut1.L + mill.D / 2, CS1.Y0 + key.L + 2 * mill.D, Zsafe);
 
-    for (int p = 1; p <= passesZ; ((((((++p)))))))
+    for (int p = 1; p <= passesZ; ((((((((++p)))))))))
     {
         double cutZ = CS1.Z0 + key.H - std::min(p * mill.DeltaH, Zdept);
 

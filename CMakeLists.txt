@@ -46,6 +46,7 @@ else()
             mill.h
             coordSystem.h
             pathviewer.h pathviewer.cpp
+            balance_profilecutting.h balance_profilecutting.cpp
         )
     endif()
 endif()
