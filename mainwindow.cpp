@@ -34,18 +34,21 @@ MainWindow::MainWindow(QWidget* parent)
     // SC->singleCutting(*M, *K1, SC->cuts1, false, true, *CS1);
     // });
 
-    CS2->X0 = 17;
+    // CS2->X0 = 17;
     // QTimer::singleShot(0,
     // this,
     // [this](){
     // SC->singleCutting(*M, *K2, SC->cuts1, false, true, *CS2);
     // });
 
-    QTimer::singleShot(0,
-    this,
-    [this](){
-        SC->doubleCutting(*M, SC->cuts1, SC->cuts2, *CS1, *CS2, *K1, 1, false);
-    });
+    // QTimer::singleShot(0,
+    // this,
+    // [this](){
+    //     SC->doubleCutting(*M, SC->cuts1, SC->cuts2, *CS1, *CS2, *K1, 1, false);
+    // });
+
+
+
 
     QWidget*     central = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(central);

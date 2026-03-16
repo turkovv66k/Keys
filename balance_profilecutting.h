@@ -17,19 +17,20 @@ public:
 
     struct balanceCut
     {
-        double  angle1 = 0;
-        double  angle2 = 0;
+        int  angle = 0;
 
         // Расстояние от упорного торца до центра выреза
         double  B = 0;
     };
 
+    void fillingCuttings();
     void balanceCutting(Key&, Mill&, QVector<balanceCut>&, coordSystem&);
 
 private:
 
-    void moveTo(double X, double Y);
+    void moveTo(double X, double Y, int Angle);
 
     QScopedPointer<Key>   key;
     QScopedPointer<Mill>  mill;
+    QVector<balanceCut>   cuts;
 };
