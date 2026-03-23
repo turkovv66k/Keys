@@ -53,9 +53,6 @@ void snakeCutting::singleCutting(Mill&                          mill,
         double cutZ = CS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept);
         moveTo(CS.X0 + k * (maxL + mill.D / 2), CS.Y0 + key.L + 2 * mill.D, cutZ);
 
-
-
-
         for (int j = cuts.length() - 1; j >= 0; j--)
         {
             double X = CS.X0 + k * (cuts[j].L + mill.D / 2);
@@ -67,7 +64,6 @@ void snakeCutting::singleCutting(Mill&                          mill,
                 moveTo(X, Y1, cutZ);
                 moveTo(X, Y2, cutZ);
                 qDebug() << "-------------------------------";
-
             }
 
             if (j == 0)
@@ -156,7 +152,7 @@ void snakeCutting::doubleCutting(Mill&                          mill,
 
     moveTo(CS1.X0 + firstCut1.L + mill.D / 2, CS1.Y0 + key.L + 2 * mill.D, Zsafe);
 
-    for (int p = 1; p <= passesZ; ++p)
+    for (int p = 1; p <= passesZ; (((++p))))
     {
         double cutZ = CS1.Z0 + key.H - std::min(p * mill.DeltaH, Zdept);
 
@@ -339,3 +335,173 @@ void snakeCutting::cutsFilling2()
     cuts2.append({18.55, 1.4, 2.85});
     cuts2.append({22.45, 0.9, 2.85});
 }
+
+// #include "snakecenterrowcutting.h"
+
+// #include <cmath>
+// #include <qdebug.h>
+
+// SnakeCenterRowCutting::SnakeCenterRowCutting(CuttingSubProgram*                                 cuttingProgram,
+// Blank*          blank,
+// const Position& coordinates)
+// {
+// m_cuttingProgram = cuttingProgram;
+// m_row = static_cast<SnakeCenterRow*>(cuttingProgram->row.get());
+// m_blank = static_cast<FlatSymmetricBlank*>(blank);
+// m_coordinates = coordinates;
+// m_mill = static_cast<EndCylindricalMill*>(cuttingProgram->mill.get());
+
+// m_cuts.reserve(cuttingProgram->row->cuts.size());
+
+// for (const auto& cut : cuttingProgram->row->cuts)
+// {
+// m_cuts.push_back(static_cast<SnakeCut*>(cut.get()));
+// }
+
+//// по приказу адмирала Бескова, необходимо перевернуть и завернуть ему за губу
+// std::reverse(m_cuts.begin(), m_cuts.end());
+// }
+
+// void SnakeCenterRowCutting::driveToCutOut()
+// {
+// m_baseX = 11.35;    // 9.50 + 3; //m_cuttingProgram->machine_base->x - (m_cuttingProgram->vise->x +
+//// m_cuttingProgram->inserts->x);
+// m_baseY = 27.45;    // 14.50 + 3;//m_cuttingProgram->machine_base->y + m_cuttingProgram->vise->y;
+
+//// тиски, безопасный Z
+// m_baseZ = 42;
+
+// m_command.addSpindleCommand(SpindleTypeDictionary::EndSpindle, 100);
+// }
+
+// void SnakeCenterRowCutting::makeCutOut()
+// {
+//// скорость нарезки
+// int    cuttingSpeed = 20;
+
+//// глубина змейки
+// double Zdept = 0.80;    // TO-DO m_row->slot_depth
+
+//// глубина одного прохода
+// double deltaH = 0.4;
+
+//// доп ширина площадки
+// double deltaD = 0.2;
+
+// if (m_blank->support == Support::Base)
+// {
+// offsetCuts();
+// double keyLength = 0;
+// Q_UNUSED(keyLength);
+
+// m_baseY = m_baseY + m_blank->length;
+// }
+// else
+// {
+// m_baseY = m_baseY + 32;
+// }
+
+// double measureZ = m_coordinates.z.value_or(30);
+
+// auto   maxCut = getFirstCut();
+// double maxL = maxCut.code;
+
+// int    k = 1;
+
+// if (m_row->side == 0)
+// {
+// k = 1;
+// }
+
+// double firstX = m_baseX + k * (maxL + m_mill->diameter_working_part / 2);
+
+// double firstY = m_baseY + 13 + 2 * m_mill->diameter_working_part;
+
+// double firstZ = measureZ + m_blank->thickness + 2;
+
+// int    passes = (int)ceil(Zdept / deltaH);
+
+// for (int i = 1; i <= passes; i++)
+// {
+// double cutZ = measureZ + m_blank->thickness - std::min(i * deltaH, Zdept);
+
+// m_command.addMovementCommand(firstX, firstY, firstZ, 50);
+
+// m_command.addMovementCommand(firstX, firstY, cutZ,   cuttingSpeed);
+
+// qDebug() << "Здравстуйте! Приехали в исходную точку";
+
+//// m_command.addMovementCommand(m_baseX + k * (maxL + m_mill->diameter_working_part / 2),
+//// m_baseY - 2 * m_mill->diameter_working_part,
+//// cutZ, cuttingSpeed);
+
+// qDebug() << "Здравстуйте! Опустили фрезу до водолазных значений - " << cutZ;
+
+// for (int j = m_cuts.size() - 1; j >= 0; j--)
+// {
+// double X = m_baseX + k * (m_cuts[j]->code + m_mill->diameter_working_part / 2);
+// double Y1 = m_baseY - m_cuts[j]->base + m_cuts[j]->area / 2.0 - deltaD;
+// double Y2 = m_baseY - m_cuts[j]->base - m_cuts[j]->area / 2.0 + deltaD;
+
+// qDebug() << "Бегаем по камере пока нас пытаются опустить! - " << X << Y1 << Y2;
+
+// if (j > 0)
+// {
+// m_command.addMovementCommand(X, Y1, cutZ, cuttingSpeed);
+// m_command.addMovementCommand(X, Y2, cutZ, cuttingSpeed);
+// qDebug() << "j > 0 ";
+// }
+
+// if (j == 0)
+// {
+// double Ybot = m_baseY - m_cuts[j]->base - m_cuts[j]->area / 2.0 - deltaD * 5;
+// m_command.addMovementCommand(X, Y1,   cutZ,   cuttingSpeed);
+// m_command.addMovementCommand(X, Ybot, cutZ,   cuttingSpeed);
+// m_command.addMovementCommand(X, Ybot, firstZ, cuttingSpeed);
+// qDebug() << "j == 0 ";
+// }
+// }
+
+// qDebug() << "Не убежали! Нас выебали!";
+// }
+
+// m_command.addMovementCommand(firstX, firstY, firstZ, 50);
+// }
+
+// void SnakeCenterRowCutting::departureAfterCut()
+// {
+// m_command.addMovementCommand(m_baseX, m_baseY, 53, 50);
+// m_command.addSpindleCommand(SpindleTypeDictionary::EndSpindle, 0);
+// }
+
+// SnakeCut SnakeCenterRowCutting::getFirstCut()
+// {
+// SnakeCut firstCut;
+
+// firstCut = *m_cuts.front();
+
+// for (const auto& c : m_cuts)
+// {
+// if (c->base > firstCut.base)
+// {
+// firstCut.base = c->base;
+// firstCut.code = c->code;
+// firstCut.area = c->area;
+// }
+// }
+
+// return firstCut;
+// }
+
+// void SnakeCenterRowCutting::offsetCuts()
+// {
+// if (m_cuts.empty())
+// {
+// return;
+// }
+
+// for (auto& cut : m_cuts)
+// {
+// cut->base -= m_blank->length;
+// }
+// }
