@@ -53,6 +53,9 @@ void snakeCutting::singleCutting(Mill&                          mill,
         double cutZ = CS.Z0 + key.H - std::min(i * mill.DeltaH, Zdept);
         moveTo(CS.X0 + k * (maxL + mill.D / 2), CS.Y0 + key.L + 2 * mill.D, cutZ);
 
+
+
+
         for (int j = cuts.length() - 1; j >= 0; j--)
         {
             double X = CS.X0 + k * (cuts[j].L + mill.D / 2);
@@ -63,6 +66,8 @@ void snakeCutting::singleCutting(Mill&                          mill,
             {
                 moveTo(X, Y1, cutZ);
                 moveTo(X, Y2, cutZ);
+                qDebug() << "-------------------------------";
+
             }
 
             if (j == 0)
@@ -151,7 +156,7 @@ void snakeCutting::doubleCutting(Mill&                          mill,
 
     moveTo(CS1.X0 + firstCut1.L + mill.D / 2, CS1.Y0 + key.L + 2 * mill.D, Zsafe);
 
-    for (int p = 1; p <= passesZ; ((((((((++p)))))))))
+    for (int p = 1; p <= passesZ; ++p)
     {
         double cutZ = CS1.Z0 + key.H - std::min(p * mill.DeltaH, Zdept);
 
@@ -328,8 +333,9 @@ void snakeCutting::cutsFilling1()
 void snakeCutting::cutsFilling2()
 {
     cuts2.clear();
-    cuts2.append({10, 2, 3});
-    cuts2.append({20, 3, 1});
-    cuts2.append({25, 1, 1});
-    cuts2.append({30, 2, 3});
+    cuts2.append({6.85, 0.9, 2.85});
+    cuts2.append({10.75, 1.4, 2.85});
+    cuts2.append({14.65, 0.9, 2.85});
+    cuts2.append({18.55, 1.4, 2.85});
+    cuts2.append({22.45, 0.9, 2.85});
 }

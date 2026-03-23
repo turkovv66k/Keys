@@ -8,5 +8,5 @@ public:
     // Толщина ключа
     double  H = 3;
     // Длина ключа
-    double  L = 41;
+    double  L = 39;
 };

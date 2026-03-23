@@ -96,7 +96,7 @@ private:
     // Угол заходной фаски
     int                   bevelAngle = 30;
     // Глубина змейки считается от базы
-    double                Zdept = 0.2;
+    double                Zdept = 1;
 
     QScopedPointer<Key>   key;
     QScopedPointer<Mill>  mill;

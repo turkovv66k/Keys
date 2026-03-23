@@ -26,7 +26,7 @@ void balance_profilecutting::balanceCutting(Key& key, Mill& mill, QVector<balanc
     moveTo(CS.X0 + Xbez, CS.Y0, 0);
 
     //проезжаем до 1 действительного выреза
-    moveTo(CS.X0 + Xbez, CS.Y0 + , 0);
+  //  moveTo(CS.X0 + Xbez, CS.Y0 + , 0);
 
 }
 

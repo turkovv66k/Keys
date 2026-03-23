@@ -4,7 +4,7 @@ class Mill
 {
 public:
     // Диаметр фрезы
-    double  D = 2;
+    double  D = 1.5;
     // Глубина одного прохода
     double  DeltaH = 1;
     // Вылет фрезы
